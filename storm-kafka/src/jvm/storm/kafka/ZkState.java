@@ -2,13 +2,13 @@ package storm.kafka;
 
 import backtype.storm.Config;
 import backtype.storm.utils.Utils;
-import com.netflix.curator.framework.CuratorFramework;
-import com.netflix.curator.framework.CuratorFrameworkFactory;
-import com.netflix.curator.retry.RetryNTimes;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.retry.RetryNTimes;
 import org.apache.zookeeper.CreateMode;
 import org.json.simple.JSONValue;
 import org.slf4j.Logger;
@@ -25,8 +25,8 @@ public class ZkState {
             serverPorts = serverPorts + server + ":" + port + ",";
         }
 	return CuratorFrameworkFactory.newClient(serverPorts,
-		Utils.getInt(stateConf.get(Config.STORM_ZOOKEEPER_SESSION_TIMEOUT)), 
-		15000, 
+		Utils.getInt(stateConf.get(Config.STORM_ZOOKEEPER_SESSION_TIMEOUT)),
+		15000,
 		new RetryNTimes(Utils.getInt(stateConf.get(Config.STORM_ZOOKEEPER_RETRY_TIMES)),
 				Utils.getInt(stateConf.get(Config.STORM_ZOOKEEPER_RETRY_INTERVAL))));
     }

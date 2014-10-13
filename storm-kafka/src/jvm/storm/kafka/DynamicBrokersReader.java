@@ -2,9 +2,9 @@ package storm.kafka;
 
 import backtype.storm.Config;
 import backtype.storm.utils.Utils;
-import com.netflix.curator.framework.CuratorFramework;
-import com.netflix.curator.framework.CuratorFrameworkFactory;
-import com.netflix.curator.retry.RetryNTimes;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.retry.RetryNTimes;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -13,33 +13,29 @@ import java.util.List;
 import java.util.Map;
 
 public class DynamicBrokersReader {
-    
+
     CuratorFramework _curator;
     String _zkPath;
     String _topic;
-    
+
     public DynamicBrokersReader(Map conf, String zkStr, String zkPath, String topic) {
-        try {
-            _zkPath = zkPath;
-            _topic = topic;
-            _curator = CuratorFrameworkFactory.newClient(
-                    zkStr,
-                    Utils.getInt(conf.get(Config.STORM_ZOOKEEPER_SESSION_TIMEOUT)),
-                    15000,
-                    new RetryNTimes(Utils.getInt(conf.get(Config.STORM_ZOOKEEPER_RETRY_TIMES)),
-                    Utils.getInt(conf.get(Config.STORM_ZOOKEEPER_RETRY_INTERVAL))));
-            _curator.start();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        _zkPath = zkPath;
+        _topic = topic;
+        _curator = CuratorFrameworkFactory.newClient(
+                zkStr,
+                Utils.getInt(conf.get(Config.STORM_ZOOKEEPER_SESSION_TIMEOUT)),
+                15000,
+                new RetryNTimes(Utils.getInt(conf.get(Config.STORM_ZOOKEEPER_RETRY_TIMES)),
+                Utils.getInt(conf.get(Config.STORM_ZOOKEEPER_RETRY_INTERVAL))));
+        _curator.start();
     }
-    
+
     /**
      * Map of host to List of port and number of partitions.
-     * 
+     *
      * {"host1.mycompany.com" -> [9092, 5]}
      */
-    public Map<String, List> getBrokerInfo() {     
+    public Map<String, List> getBrokerInfo() {
         Map<String, List> ret = new HashMap();
         try {
             String topicBrokersPath = _zkPath + "/topics/" + _topic;
@@ -59,7 +55,7 @@ public class DynamicBrokersReader {
                     info.add((long)hp.port);
                     info.add((long)numPartitions);
                     ret.put(hp.host, info);
-                    
+
                 } catch(org.apache.zookeeper.KeeperException.NoNodeException e) {
 
                 }
@@ -69,11 +65,11 @@ public class DynamicBrokersReader {
         }
         return ret;
     }
-    
+
     public void close() {
         _curator.close();
     }
-    
+
     private static HostPort getBrokerHost(byte[] contents) {
         try {
             String[] hostString = new String(contents, "UTF-8").split(":");
@@ -83,13 +79,13 @@ public class DynamicBrokersReader {
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
-    }  
-    
+    }
+
     private static int getNumPartitions(byte[] contents) {
         try {
-            return Integer.parseInt(new String(contents, "UTF-8"));            
+            return Integer.parseInt(new String(contents, "UTF-8"));
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
-    } 
+    }
 }

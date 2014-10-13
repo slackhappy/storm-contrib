@@ -1,3 +1,19 @@
+Storm 0.9.2 - Kafka 0.7
+=======================
+Fork of [storm-contrib](http://github.com/nathanmarz/storm-contrib)
+
+You'll have to update project.clj with your favorite kafka distribution
+
+No guarantees, but this seems to work...
+
+To build:
+
+    cd storm-kafka
+    lein jar
+    lein pom
+
+
+
 About
 =====
 
